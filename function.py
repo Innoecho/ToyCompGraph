@@ -5,12 +5,13 @@ from variable import Variable
 class Function:
     __counter = 0
 
-    def __call__(self, *args) -> Variable:
-        var = self.__class__.forward(args)
+    @classmethod
+    def apply(cls, *args) -> Variable:
+        var = cls.forward(args)
         var.set_prev(args)
-        var.set_grad_fun(self.__class__.backward)
-        var.set_fun_name(self.__class__.__name__[:-4] + f"_{self.__class__.__counter}")
-        self.__class__.__counter += 1
+        var.set_grad_fun(cls.backward)
+        var.set_fun_name(cls.__name__ + f"_{cls.__counter}")
+        cls.__counter += 1
         return var
 
     @staticmethod
@@ -22,7 +23,7 @@ class Function:
         raise NotImplementedError
 
 
-class AddMeta(Function):
+class Add(Function):
     @staticmethod
     def forward(args) -> Variable:
         a = args[0]
@@ -37,7 +38,11 @@ class AddMeta(Function):
         return [a_grad, b_grad]
 
 
-class MinusMeta(Function):
+def add(a: Variable, b: Variable):
+    return Add.apply(a, b)
+
+
+class Minus(Function):
     @staticmethod
     def forward(args) -> Variable:
         a = args[0]
@@ -52,7 +57,11 @@ class MinusMeta(Function):
         return [a_grad, b_grad]
 
 
-class ProdMeta(Function):
+def minus(a: Variable, b: Variable):
+    return Minus.apply(a, b)
+
+
+class Prod(Function):
     @staticmethod
     def forward(args) -> Variable:
         a = args[0]
@@ -69,7 +78,11 @@ class ProdMeta(Function):
         return [a_grad, b_grad]
 
 
-class SinMeta(Function):
+def prod(a: Variable, b: Variable):
+    return Prod.apply(a, b)
+
+
+class Sin(Function):
     @staticmethod
     def forward(args) -> Variable:
         a = args[0]
@@ -82,7 +95,11 @@ class SinMeta(Function):
         return [a_grad]
 
 
-class CosMeta(Function):
+def sin(a: Variable):
+    return Sin.apply(a)
+
+
+class Cos(Function):
     @staticmethod
     def forward(args) -> Variable:
         a = args[0]
@@ -95,8 +112,5 @@ class CosMeta(Function):
         return [a_grad]
 
 
-add = AddMeta()
-minus = MinusMeta()
-prod = ProdMeta()
-sin = SinMeta()
-cos = CosMeta()
+def cos(a: Variable):
+    return Cos.apply(a)

@@ -6,10 +6,16 @@ def topo_sort(node):
     topo_sorted = []
 
     def topo_sort_helper(node_):
-        for prev_node in node_.get_prev():
-            if prev_node not in node_visited:
-                node_visited.add(prev_node)
+        # is leaf? no dependency
+        # is visited? dependency is satisfied
+        # so, when topo_sort_helper exits, cur node is ready to execute
+        if node_.is_leaf or (node_ in node_visited):
+            pass
+        else:
+            node_visited.add(node_)
+            for prev_node in node_.get_prev():
                 topo_sort_helper(prev_node)
+            # here, we append cur node to ready list
             topo_sorted.append(node_)
 
     topo_sort_helper(node)
@@ -35,7 +41,7 @@ class Variable:
 
         self.shape = data.shape
         self.data = data
-        self.grad = np.ones(self.shape)
+        self.grad = np.zeros(self.shape)
 
     def set_prev(self, prev):
         self._prev = prev
@@ -64,6 +70,7 @@ class Variable:
             return self.get_name()
 
     def backward(self):
+        self.grad = np.ones(self.shape)
         topo_sorted = topo_sort(self)
 
         for var in topo_sorted:
@@ -74,7 +81,7 @@ class Variable:
             return
         grad = self._grad_fun(self._prev, self.grad)
         for i, v in enumerate(grad):
-            if self._prev[i].require_grad and v:
+            if self._prev[i].require_grad and v.all():
                 self._prev[i].grad += v
 
     def __add__(self, var):

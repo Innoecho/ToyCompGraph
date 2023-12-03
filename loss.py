@@ -4,6 +4,9 @@ from function import Function
 
 
 class MSELoss(Function):
+    def __call__(self, *args):
+        return self.__class__.apply(*args)
+
     @staticmethod
     def forward(args) -> Variable:
         result = args[0]
@@ -11,7 +14,7 @@ class MSELoss(Function):
         err = result.data - target.data
         se_sum = np.sum(err ** 2)
         mse = se_sum / result.data.size
-        loss = Variable(mse)
+        loss = Variable(mse, is_leaf=False)
 
         return loss
 
@@ -21,6 +24,5 @@ class MSELoss(Function):
         target = prev[1]
         n = result.data.size
         a_grad = 2 * (result.data - target.data) / n
-        # b_grad = -a_grad
 
         return [a_grad, None]

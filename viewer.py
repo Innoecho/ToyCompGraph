@@ -25,7 +25,7 @@ def view_graph(node: Variable, file_name: str = "./graph", label_type: int = 0) 
 
     while len(queue) > 0:
         cur_node = queue.popleft()
-        for prev_node in cur_node.prev:
+        for prev_node in cur_node.get_prev():
             if prev_node not in visited:
                 visited.add(prev_node)
                 queue.append(prev_node)
