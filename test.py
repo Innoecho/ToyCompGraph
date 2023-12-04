@@ -1,22 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from variable import Variable
 from loss import MSELoss
 from optimizer import Adam
 
 from sample import Sample
-from model import Model
+from module import Module
+from module import Linear
 
 
-class SimpleModel(Model):
+class TestModel(Module):
     def __init__(self, dim_):
         super().__init__()
-        self.param_list = []
-        self.param = Variable(np.random.random((dim_, 1)), require_grad=True)
+        self.fc = Linear(dim_, 1)
 
     def forward(self, x):
-        return x * self.param
+        return self.fc(x)
 
 
 if __name__ == '__main__':
@@ -34,7 +33,7 @@ if __name__ == '__main__':
 
     sample = Sample(dim)
     mse = MSELoss()
-    model = SimpleModel(dim)
+    model = TestModel(dim)
     optimizer = Adam(model.get_param(), eta=eta, beta1=beta1, beta2=beta2)
 
     for i_iter in range(iter_num):
